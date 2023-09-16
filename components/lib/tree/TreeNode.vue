@@ -93,6 +93,10 @@ export default {
         index: {
             type: Number,
             default: null
+        },
+        propagateUp: {
+            type: Boolean,
+            default: false
         }
     },
     nodeTouched: false,
@@ -343,15 +347,17 @@ export default {
                 else if (_selectionKeys[child.key] && _selectionKeys[child.key].partialChecked) childPartialSelected = true;
             }
 
-            if (check && checkedChildCount === this.node.children.length) {
-                _selectionKeys[this.node.key] = { checked: true, partialChecked: false };
-            } else {
-                if (!check) {
-                    delete _selectionKeys[this.node.key];
-                }
+            if (this.propagateUp) {
+                if (check && checkedChildCount === this.node.children.length) {
+                    _selectionKeys[this.node.key] = { checked: true, partialChecked: false };
+                } else {
+                    if (!check) {
+                        delete _selectionKeys[this.node.key];
+                    }
 
-                if (childPartialSelected || (checkedChildCount > 0 && checkedChildCount !== this.node.children.length)) _selectionKeys[this.node.key] = { checked: false, partialChecked: true };
-                else delete _selectionKeys[this.node.key];
+                    if (childPartialSelected || (checkedChildCount > 0 && checkedChildCount !== this.node.children.length)) _selectionKeys[this.node.key] = { checked: false, partialChecked: true };
+                    else delete _selectionKeys[this.node.key];
+                }
             }
 
             this.$emit('checkbox-change', {

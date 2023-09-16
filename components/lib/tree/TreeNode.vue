@@ -94,7 +94,7 @@ export default {
             type: Number,
             default: null
         },
-        propagateUp: {
+        shouldPropagateUp: {
             type: Boolean,
             default: false
         }
@@ -347,7 +347,7 @@ export default {
                 else if (_selectionKeys[child.key] && _selectionKeys[child.key].partialChecked) childPartialSelected = true;
             }
 
-            if (this.propagateUp) {
+            if (this.shouldPropagateUp) {
                 if (check && checkedChildCount === this.node.children.length) {
                     _selectionKeys[this.node.key] = { checked: true, partialChecked: false };
                 } else {

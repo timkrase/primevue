@@ -1,4 +1,4 @@
-name: Daily Build
+name: Build and release
 
 on:
   workflow_dispatch:
@@ -25,3 +25,33 @@ jobs:
       run: |
         npm install
         npm run build:lib
+
+    - name: Get package version
+      id: pkg
+      run: echo "::set-output name=version::$(node -p "require('./package.json').version")"
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.pkg.outputs.version }}
+        release_name: Release ${{ steps.pkg.outputs.version }}
+        draft: false
+        prerelease: false
+
+    - name: Archive distribution files
+      run: |
+        tar czvf dist-${{ steps.pkg.outputs.version }}.zip dist
+
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist-${{ steps.pkg.outputs.version }}.zip
+        asset_name: dist-${{ steps.pkg.outputs.version }}.zip
+        asset_content_type: application/zip
